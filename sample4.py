@@ -18,7 +18,7 @@ sequence_length = 20
 batch_size = 64
 
 #preparing dataset
-text_file = "kann2.txt"
+text_file = "kan.txt"
 with open(text_file,encoding= "UTF-8") as f:
     lines = f.read().split("\n")[:-1]
 
@@ -79,7 +79,10 @@ for inputs, targets in train_ds.take(2):
     print(f"inputs['english'].shape: {inputs['english'].shape}")
     print(f"inputs['kannada'].shape: {inputs['kannada'].shape}")
     print(f"targets.shape: {targets.shape}")
-    
+    # print(f"inputs['english']: {inputs['english']}")
+    # print(f"inputs['kannada']: {inputs['kannada']}")
+    # print(f"targets: {targets}")
+
 # # actual code start
 class PositionalEmbedding(layers.Layer):
     def __init__(self, sequence_length, input_dim, output_dim, **kwargs):
@@ -190,9 +193,9 @@ transformer = keras.Model([encoder_inputs, decoder_inputs], decoder_outputs)
 transformer.compile( optimizer="rmsprop", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
 callbacks = [ keras.callbacks.ModelCheckpoint("transformer_en_decoder.keras", save_best_only=True)]
-transformer.fit(train_ds, epochs=10, validation_data=val_ds,callbacks = callbacks)
+transformer.fit(train_ds, epochs=4, validation_data=train_ds,callbacks = callbacks)
 
-print(f"Test acc: {transformer.evaluate(val_ds)[1]:.3f}")
+print(f"Test acc: {transformer.evaluate(train_ds)[1]:.3f}")
 
 kann_vocab = target_vectorization.get_vocabulary()
 kann_index_lookup = dict(zip(range(len(kann_vocab)), kann_vocab))
@@ -214,7 +217,7 @@ def decode_sequence(input_sentence):
             break
     return decoded_sentence
 
-test_eng_texts = [pair[0] for pair in val_pairs]
+test_eng_texts = [pair[0] for pair in train_pairs]
 for _ in range(10):
     input_sentence = random.choice(test_eng_texts)
     print("-")

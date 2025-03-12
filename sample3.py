@@ -95,11 +95,11 @@ model.compile(optimizer="rmsprop",loss="binary_crossentropy",metrics=["accuracy"
 model.summary()
 
 callbacks = [ keras.callbacks.ModelCheckpoint("transformer_encoder.keras", save_best_only=True)]
-model.fit( encode_X_train, Y_train, epochs=5, callbacks=callbacks)
+#model.fit( encode_X_train, Y_train, epochs=5, callbacks=callbacks)
 
-model.save_weights('TF_P_EN.weights.h5')
-#model.load_weights ('TF_EN.weights.h5')
-print(f"Test acc: {model.evaluate(encode_X_test,Y_test)[1]:.3f}")
+#model.save_weights('TF_P_EN.weights.h5')
+model.load_weights ('TF_p_EN.weights.h5')
+print(f"Test acc: {model.evaluate(encode_X_train,Y_train)[1]:.3f}")
 
 print("predictions: New values")
 xx_test = [' مجموع 5 و 7 و 9 يساوي 21.']

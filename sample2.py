@@ -65,10 +65,10 @@ model.compile(optimizer="rmsprop", loss="binary_crossentropy", metrics=["accurac
 model.summary()
 
 callbacks = [ keras.callbacks.ModelCheckpoint("transformer_encoder.keras", save_best_only=True)]
-model.fit( encode_X_train, Y_train, epochs=5, callbacks=callbacks)
+#model.fit( encode_X_train, Y_train, epochs=5, callbacks=callbacks)
 
-model.save_weights('TF_EN.weights.h5')
-#model.load_weights ('TF_EN.weights.h5')
+#model.save_weights('TF_EN.weights.h5')
+model.load_weights ('TF_EN.weights.h5')
 print(f"Test acc: {model.evaluate(encode_X_test,Y_test)[1]:.3f}")
 
 print("predictions: New values")
