@@ -1,5 +1,4 @@
 
-#Transformer encoder for text classification
 import random
 import pandas
 from sklearn.model_selection import train_test_split
@@ -10,11 +9,12 @@ import string
 import re
 import numpy as np
 
-vocab_size = 20000
+vocab_size = 300
 embed_dim = 256
 num_heads = 2
 dense_dim = 2048
-sequence_length = 20
+
+sequence_length = 10
 batch_size = 64
 
 #preparing dataset
@@ -28,12 +28,15 @@ for line in lines:
     kannada = "[start] " + kannada + " [end]"
     text_pairs.append((english, kannada))
 
+#print text_pairs 
+print(random.choice(text_pairs))
+
 num_val_samples = int(0.15 * len(text_pairs))
 num_train_samples = len(text_pairs) - 2 * num_val_samples
+
 train_pairs = text_pairs[:num_train_samples]
 val_pairs = text_pairs[num_train_samples:num_train_samples + num_val_samples]
 test_pairs = text_pairs[num_train_samples + num_val_samples:]
-
 
 #strip_chars = string.punctuation + "¿"
 strip_chars = string.punctuation
@@ -56,11 +59,16 @@ train_kannada_texts = [pair[1] for pair in train_pairs]
 source_vectorization.adapt(train_english_texts)
 target_vectorization.adapt(train_kannada_texts)
 
+tokens_index11 = dict(enumerate(source_vectorization.get_vocabulary()))
+print (tokens_index11)
+
+tokens_index22 = dict(enumerate(target_vectorization.get_vocabulary()))
+print (tokens_index22)
+
 def format_dataset(eng, kann):
     eng = source_vectorization(eng)
     kann = target_vectorization(kann)
     return ({"english": eng,"kannada": kann[:, :-1],}, kann[:, 1:])
-
 
 def make_dataset(pairs):
     eng_texts, kann_texts = zip(*pairs)
@@ -75,13 +83,13 @@ def make_dataset(pairs):
 train_ds = make_dataset(train_pairs)
 val_ds = make_dataset(val_pairs)
 
-for inputs, targets in train_ds.take(2):
+#print dataset
+print ('dataset:')
+for inputs, targets in train_ds : #.take(2)
     print(f"inputs['english'].shape: {inputs['english'].shape}")
     print(f"inputs['kannada'].shape: {inputs['kannada'].shape}")
     print(f"targets.shape: {targets.shape}")
-    # print(f"inputs['english']: {inputs['english']}")
-    # print(f"inputs['kannada']: {inputs['kannada']}")
-    # print(f"targets: {targets}")
+
 
 # # actual code start
 class PositionalEmbedding(layers.Layer):
@@ -192,17 +200,20 @@ decoder_outputs = layers.Dense(vocab_size, activation="softmax")(x)
 transformer = keras.Model([encoder_inputs, decoder_inputs], decoder_outputs)
 transformer.compile( optimizer="rmsprop", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
-callbacks = [ keras.callbacks.ModelCheckpoint("transformer_en_decoder.keras", save_best_only=True)]
-transformer.fit(train_ds, epochs=4, validation_data=train_ds,callbacks = callbacks)
-
-print(f"Test acc: {transformer.evaluate(train_ds)[1]:.3f}")
+callbacks = [ keras.callbacks.ModelCheckpoint("transformer_en_decoder100.keras", save_best_only=True)]
+transformer.fit(train_ds, epochs=40, validation_data=val_ds,callbacks = callbacks)
 
 kann_vocab = target_vectorization.get_vocabulary()
 kann_index_lookup = dict(zip(range(len(kann_vocab)), kann_vocab))
-max_decoded_sentence_length = 20
+max_decoded_sentence_length = 10
 
-transformer.save_weights('TF_P_TRD.weights.h5')
+# transformer = tf.keras.models.load_model('transformer_en_decoder100.keras') 
 
+transformer.save_weights('TF_P_TRD30.weights.h5')
+#transformer.load_weights('TF_P_TRD30.weights.h5')
+
+print(f"Test acc: {transformer.evaluate(train_ds)[1]:.3f}")
+target_vectorization.get_vocabulary()
 def decode_sequence(input_sentence):
     tokenized_input_sentence = source_vectorization([input_sentence])
     decoded_sentence = "[start]"

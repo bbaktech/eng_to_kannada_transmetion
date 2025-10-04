@@ -15,7 +15,7 @@ embed_dim = 256
 num_heads = 2
 dense_dim = 32
 
-df1 = pandas.read_csv('human_chatgpt_genarated_500dataset.csv')
+df1 = pandas.read_csv('human_chatgpt_genarated_dataset.csv')
 X = df1.iloc[:, 0]
 Y  = df1.iloc[:, 1]
 print (len(X))
@@ -28,7 +28,6 @@ print ( 'vocabulary size:' + str(len(text_vectorization.get_vocabulary())))
 
 encode_X_train = text_vectorization(X_train)
 encode_X_test = text_vectorization(X_test)
-
 
 class TransformerEncoder(layers.Layer):
     def __init__(self, embed_dim, dense_dim, num_heads, **kwargs):
@@ -63,12 +62,12 @@ outputs = layers.Dense(1, activation="sigmoid")(x)
 model = keras.Model(inputs, outputs)
 model.compile(optimizer="rmsprop", loss="binary_crossentropy", metrics=["accuracy"])
 model.summary()
+callbacks = [ keras.callbacks.ModelCheckpoint("transformer_enkeras", save_best_only=True)]
+#callbacks = [ keras.callbacks.ModelCheckpoint("transformer_encoder.keras", save_best_only=True)]
+model.fit( encode_X_train, Y_train, epochs=5, callbacks=callbacks)
 
-callbacks = [ keras.callbacks.ModelCheckpoint("transformer_encoder.keras", save_best_only=True)]
-#model.fit( encode_X_train, Y_train, epochs=5, callbacks=callbacks)
-
-#model.save_weights('TF_EN.weights.h5')
-model.load_weights ('TF_EN.weights.h5')
+model.save_weights('TF_EN.weights.h5')
+model.load_weights('TF_EN.weights.h5')
 print(f"Test acc: {model.evaluate(encode_X_test,Y_test)[1]:.3f}")
 
 print("predictions: New values")

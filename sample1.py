@@ -8,8 +8,7 @@ import string
 import re
 import numpy as np
 
-
-vocab_size = 15000
+vocab_size = 300
 sequence_length = 20
 batch_size = 64
 embed_dim = 256
@@ -19,6 +18,7 @@ num_heads = 8
 text_file = "kan.txt"
 with open(text_file,encoding= "UTF-8") as f:
     lines = f.read().split("\n")[:-1]
+    
 text_pairs = []
 for line in lines:
     english, kannada, ttmp = line.split("\t")
@@ -69,17 +69,17 @@ def make_dataset(pairs):
 train_ds = make_dataset(train_pairs)
 val_ds = make_dataset(val_pairs)
 
-for inputs, targets in train_ds.take(1):
+for inputs, targets in train_ds:
     print(f"inputs['english'].shape: {inputs['english'].shape}")
     print(f"inputs['kannada'].shape: {inputs['kannada'].shape}")
     print(f"targets.shape: {targets.shape}")
 
-test_eng_texts = [pair[0] for pair in val_pairs]
-test_kann_texts = [pair[1] for pair in val_pairs]
+# test_eng_texts = [pair[0] for pair in val_pairs]
+# test_kann_texts = [pair[1] for pair in val_pairs]
 
-for _ in range(10):
-    input_sentence = random.choice(test_eng_texts)
-    input_sentence1 = random.choice(test_kann_texts)
-    print("-")
-    print(input_sentence)
-    print(input_sentence1)
+# for _ in range(10):
+#     input_sentence = random.choice(test_eng_texts)
+#     input_sentence1 = random.choice(test_kann_texts)
+#     print("-")
+#     print(input_sentence)
+#     print(input_sentence1)

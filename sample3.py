@@ -1,5 +1,5 @@
 
-#Transformer encoder for text classification
+#Transformer encoder with positional encoding for text classification
 import random
 import pandas
 from sklearn.model_selection import train_test_split
@@ -16,7 +16,7 @@ num_heads = 2
 dense_dim = 32
 sequence_length = 2000
 
-df1 = pandas.read_csv('human_chatgpt_genarated_500dataset.csv')
+df1 = pandas.read_csv('human_chatgpt_genarated_dataset.csv')
 X = df1.iloc[:, 0]
 Y  = df1.iloc[:, 1]
 print (len(X))
@@ -95,10 +95,10 @@ model.compile(optimizer="rmsprop",loss="binary_crossentropy",metrics=["accuracy"
 model.summary()
 
 callbacks = [ keras.callbacks.ModelCheckpoint("transformer_encoder.keras", save_best_only=True)]
-#model.fit( encode_X_train, Y_train, epochs=5, callbacks=callbacks)
+model.fit( encode_X_train, Y_train, epochs=5, callbacks=callbacks)
 
-#model.save_weights('TF_P_EN.weights.h5')
-model.load_weights ('TF_p_EN.weights.h5')
+model.save_weights('TF_P_EN.weights.h5')
+model.load_weights('TF_P_EN.weights.h5')
 print(f"Test acc: {model.evaluate(encode_X_train,Y_train)[1]:.3f}")
 
 print("predictions: New values")
