@@ -86,10 +86,12 @@ dataset = dataset.map(lambda x: tf.strings.regex_replace(x, "<br />", " "))
 sequence_length = 25
 vocab_size = 20
 text_vectorization = layers.TextVectorization(
-    max_tokens=vocab_size,output_mode="int",ngrams=2,output_sequence_length=sequence_length,)
+    max_tokens=vocab_size,output_mode="int",ngrams=None,output_sequence_length=sequence_length,)
 #    max_tokens=vocab_size,output_mode="int")
 
 text_vectorization.adapt(dataset)
+
+vocab_size = text_vectorization.vocabulary_size()
 
 def prepare_lm_dataset(text_batch):
     vectorized_sequences = text_vectorization(text_batch)
@@ -159,9 +161,10 @@ def sample_next(predictions, temperature=1.0):
 #                         model_input_length=sequence_length,
 #                         temperatures=(0.2, 0.5, 0.7, 1., 1.5))
 
+callbacks = [ keras.callbacks.ModelCheckpoint("transformer_encoderV2.keras", save_best_only=True)]
 #model.fit(lm_dataset, epochs=100, callbacks=[text_gen_callback])
 
-history = model.fit(lm_dataset, epochs=100)
+history = model.fit(lm_dataset, epochs=30,callbacks = callbacks)
 
 # Plotting the training history
 # plt.plot(history.history['accuracy'], label='Training Accuracy')
@@ -169,10 +172,9 @@ history = model.fit(lm_dataset, epochs=100)
 # plt.ylabel('Accuracy')
 # plt.legend()
 # plt.show()
+#model.save_weights('TF_SEQ_SEQV2.weights.h5')
 
-model.save_weights('TF_SEQ_SEQV2.weights.h5')
-
-model.load_weights('TF_SEQ_SEQV2.weights.h5')
+#model.load_weights('TF_SEQ_SEQV2.weights.h5')
 def textGenaration(prompt,
                         generate_length=10,
                         model_input_length=sequence_length,
@@ -189,5 +191,5 @@ def textGenaration(prompt,
             sentence += " " + sampled_token
         print(sentence)
 
-prompt = "44 55 66 77 11 22"
+prompt = "11"
 textGenaration(prompt)
